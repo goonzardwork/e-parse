@@ -18,14 +18,15 @@ export const useExcelData = () => {
       const discov = await analyzeSelectedArea();
       
       const nonTableOffset = findFirstColoredCellLRTD(discov.cellColor);
-      const headerOffset = findDataStart(discov.mergedInfo);
+      let dataWithHeader = move(area, { start: nonTableOffset });
+
+      const headerOffset = findDataStart(dataWithHeader, discov.mergedInfo);
       const footerOffset = findFirstRowWithBorder(discov.cellBorder, "bottom");
       
       console.log("nonTableOffset", nonTableOffset);
       console.log("headerOffset", headerOffset);
       console.log("footerOffset", footerOffset);
 
-      let dataWithHeader = move(area, { start: nonTableOffset });
       let dataWithoutHeader = move(dataWithHeader, { start: headerOffset });
       let dataWithoutFooter = move(dataWithoutHeader, { end: footerOffset });
 

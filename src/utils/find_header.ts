@@ -1,3 +1,5 @@
+import { etoi, ExcelRangeIndex } from "./cell_ops";
+
 export type Point = [number, number] | null;
 
 export type MergedCell = {
@@ -33,8 +35,6 @@ export async function analyzeSelectedArea(): Promise<HeaderInference | null> {
       let mrgMap: Map<string, MergedCell> = new Map();
 
       await context.sync();
-      
-      console.log(props);
 
       let colors: string[][] = [];
       let borders: Border[][] = [];
@@ -168,11 +168,15 @@ export function findFirstColoredCellTDLR(
   return null;
 }
 
-export function findDataStart(headers: Map<string, MergedCell>): [number, number] {
-  let headerRow = 0;
+export function findDataStart(range: ExcelRangeIndex, merged: Map<string, MergedCell>): [number, number] {
+  let headerRow = 1;
 
-  for (const i of Array.from(headers.values())) {
-    if (headerRow < i.rowCount) {
+  const startIdx = range.start;
+
+  for (const i of Array.from(merged.values())) {
+    const mergedMainCell = etoi(i.mainAddress);
+    if (startIdx[0] === mergedMainCell.start[0] && headerRow < i.rowCount) {
+      // Merged cell only for data block starting row (suspected header row)
       headerRow = i.rowCount;
     }
   }
@@ -207,7 +211,7 @@ export function findFirstRowWithBorder(
   return [0, 0];
 }
 
-export function findFirstColWithBorderRelative(
+export function findFirstColWithBorder(
   cellBorder: { top: boolean; bottom: boolean; left: boolean; right: boolean }[][],
   side: "top" | "bottom" | "left" | "right",
   direction: "left-right" | "right-left" = "left-right",
