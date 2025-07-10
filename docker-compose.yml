@@ -1,0 +1,23 @@
+services:
+  parser:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src
+      - ./webpack.config.js:/app/webpack.config.js
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - parser-back
+
+  parser-back:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    ports:
+      - "51000:8000"
+    volumes:
+      - ./server:/app
