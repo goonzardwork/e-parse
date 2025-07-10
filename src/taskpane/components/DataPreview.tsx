@@ -14,6 +14,8 @@ const useStyles = makeStyles({
   dataQueryPreview: {
     display: "flex",
     flexDirection: "column",
+    justifyContent: "space-between",
+    minHeight: "20vh",
     alignItems: "center",
     gap: "16px",
     marginBottom: "20px"
@@ -33,13 +35,12 @@ const useStyles = makeStyles({
   },
   actionRow: {
     display: "flex",
-    flexDirection: "row", // 중요: 같은 줄 유지
+    flexDirection: "row",
+    justifyContent: "center", // 버튼들을 가운데 정렬
     alignItems: "center",
-    justifyContent: "flex-start",
-    gap: "12px", // 간격 줄이기
-    width: "100%",
-    maxWidth: "800px",
-    padding: "4px 0",
+    gap: "12px",
+    marginTop: "auto",         // 여유 공간 밀어내기
+    paddingTop: "20px",
   },
   infoText: {
     display: "flex",
@@ -72,7 +73,9 @@ const DataPreview: React.FC<DataPreviewProps> = (_: DataPreviewProps) => {
           <ExcelPreview data={data} />
         </div>
       ) : (
-        <p>No data loaded. Select a range and click "Get Selected Excel Range".</p>
+        <div className={styles.table}>
+          <p>No data loaded. Select a range and click "Get Selected Excel Range".</p>
+        </div>
       )}
 
       <div className={styles.actionRow}>

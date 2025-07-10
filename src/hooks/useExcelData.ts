@@ -20,6 +20,10 @@ export const useExcelData = () => {
       const nonTableOffset = findFirstColoredCellLRTD(discov.cellColor);
       const headerOffset = findDataStart(discov.mergedInfo);
       const footerOffset = findFirstRowWithBorder(discov.cellBorder, "bottom");
+      
+      console.log("nonTableOffset", nonTableOffset);
+      console.log("headerOffset", headerOffset);
+      console.log("footerOffset", footerOffset);
 
       let dataWithHeader = move(area, { start: nonTableOffset });
       let dataWithoutHeader = move(dataWithHeader, { start: headerOffset });

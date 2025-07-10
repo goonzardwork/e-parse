@@ -3,7 +3,7 @@ import Header from "./Header";
 import TableParser from "./TableParser";
 import Bottom from "./Bottom";
 
-import { HeroListItem } from "./HeroList";
+import HeroList, { HeroListItem } from "./HeroList";
 import { makeStyles } from "@fluentui/react-components";
 import { Ribbon24Regular, LockOpen24Regular, DesignIdeas24Regular } from "@fluentui/react-icons";
 import { insertText } from "../taskpane";
@@ -30,16 +30,8 @@ const App: React.FC<AppProps> = (props: AppProps) => {
   // so this should be an ordinary const, not a part of state.
   const listItems: HeroListItem[] = [
     {
-      icon: <Ribbon24Regular />,
-      primaryText: "Achieve more with Office integration",
-    },
-    {
-      icon: <LockOpen24Regular />,
-      primaryText: "Unlock features and functionality",
-    },
-    {
       icon: <DesignIdeas24Regular />,
-      primaryText: "Create and visualize like a pro",
+      primaryText: "저장하고 싶은 엑셀 Range를 지정하고, 버튼을 눌러주세요",
     },
   ];
 
@@ -50,6 +42,7 @@ const App: React.FC<AppProps> = (props: AppProps) => {
         title={props.title}
         message="LABORARE AD MORTEM"
       />
+      <HeroList message="" items={listItems} />
       <TableParser insertText={insertText} />
       <Bottom />
     </div>
