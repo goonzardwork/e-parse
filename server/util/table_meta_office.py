@@ -1,9 +1,6 @@
-import pandas as pd
-# new import
 import pandera.pandas as pa
-from pandera.typing import Series, DataFrame
+from pandera.typing import Series
 from datetime import datetime
-from typing import get_args, get_origin
 
 # 오피스 칼럼 변수명은 다음 사이트 참고
 # https://realestateagent-story.tistory.com/entry/%EB%B6%80%EB%8F%99%EC%82%B0%EC%98%81%EC%96%B4-%EC%8B%A4%EB%AC%B4%EB%A5%BC-%ED%95%98%EB%A9%B4%EC%84%9C-%EB%A7%8E%EC%9D%B4-%EC%93%B0%EB%8A%94-%EC%98%81%EC%96%B4%EB%8B%A8%EC%96%B4-%EB%A6%AC%EC%8A%A4%ED%8A%B8
@@ -23,27 +20,6 @@ class OfficeTable1(pa.DataFrameModel):
     vacancy_inclusive: Series[float]  # 공실률 신축 포함
     vacancy_exclusive: Series[float]  # 공실률 신축 제외
     noc: Series[float]
-
-def offce_table_1(df: pd.DataFrame, dm: pa.DataFrameModel) -> DataFrame[OfficeTable1]:
-    if dm is None:
-        raise RuntimeError("no parsing function for `df`")
-
-    # 1. Target column names
-    columns = list(dm.__annotations__.keys())
-
-
-    # 2. Coerce column types using inner_type
-    type_map = {}
-    for col, col_type in dm.__annotations__.items():
-        if get_origin(col_type) is Series:
-            inner_type = get_args(col_type)[0]
-            type_map[col] = inner_type
-
-    # # 3. Apply type coercion
-    # df = df.astype(type_map)
-
-    # 4. Return typed DataFrame
-    return df  # type: ignore  # Pandera handles typing at runtime
 
 
 class OfficeTable2(pa.DataFrameModel):
@@ -410,6 +386,8 @@ class OfficeTable11(pa.DataFrameModel):
     efficiency_rate: Series[float]
     completion_year: Series[int]
     # 분기별 반복 Column
+    year: Series[int]
+    quarter: Series[str]
     deposit: Series[float]  # 원/평
     rent: Series[float]  # 원/평
     utility: Series[float]  # 원/평
