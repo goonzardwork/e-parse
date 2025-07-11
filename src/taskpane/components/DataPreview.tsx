@@ -11,6 +11,17 @@ interface DataPreviewProps {
 }
 
 const useStyles = makeStyles({
+  // Category button
+  categorySelector: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "8px",
+    marginBottom: "12px",
+  },
+  selected: {
+    backgroundColor: "#d0d0d0", // 선택된 버튼 강조
+  },
+  // Data preview button
   dataQueryPreview: {
     display: "flex",
     flexDirection: "column",
@@ -49,13 +60,32 @@ const useStyles = makeStyles({
   },
 });
 
+const categories = ["오피스", "리테일", "물류창고", "호텔"];
+
 const DataPreview: React.FC<DataPreviewProps> = (_: DataPreviewProps) => {
+  const [prefix, setPrefix] = React.useState("오피스");
+
   const { data, sheetName, rangeInfo, loading, handleGetRange } = useExcelData();
   const { tables, addTable, reset, uploadToBackend } = useExportQueue();
   const styles = useStyles();
 
   return (
     <div className={styles.dataQueryPreview}>
+      {/* Category Selector */}
+      <div className={styles.categorySelector}>
+        {categories.map((cat) => (
+          <Button
+            key={cat}
+            size="medium"
+            appearance={cat === prefix ? "primary" : "secondary"}
+            className={cat === prefix ? styles.selected : ""}
+            onClick={() => setPrefix(cat)}
+          >
+            {cat}
+          </Button>
+        ))}
+      </div>
+      {/* Get Range */}
       <div className={styles.infoRow}>
         <div className={styles.actionRow}>
           <Button size="large" onClick={handleGetRange} disabled={loading}>
@@ -85,7 +115,7 @@ const DataPreview: React.FC<DataPreviewProps> = (_: DataPreviewProps) => {
           disabled={data.length === 0}
           onClick={() => {
             const name = `${sheetName}_${rangeInfo}`.replace(/[^a-zA-Z0-9-_]/g, "_");
-            addTable({ name, data });
+            addTable({ prefix, name, data });
           }}
         >
           Add to Queue

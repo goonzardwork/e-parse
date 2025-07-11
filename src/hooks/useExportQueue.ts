@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { arrayToCSV, exportTablesAsZip } from "../utils/csv_zip";
+import { arrayToCSV } from "../utils/csv_zip";
 
 export interface TableEntry {
+  prefix: string;
   name: string;
   data: string[][];
 }
@@ -18,11 +19,12 @@ export function useExportQueue() {
   }
 
   const uploadToBackend = async () => {
-    for (const { name, data } of tables) {
+    let i = 0;
+    for (const { prefix, name, data } of tables) {
       const csv = arrayToCSV(data);
       const blob = new Blob([csv], { type: "text.csv" });
       const formData = new FormData();
-      formData.append("file", blob, `${name}.csv`);
+      formData.append("file", blob, `${prefix}_${i}.csv`);
 
       try {
         const res = await fetch("https://localhost:51000/upload_csv/", {
@@ -41,6 +43,8 @@ export function useExportQueue() {
       } catch (err) {
         console.error("Upload failed:", err);
       }
+
+      i++;
     }
   }
 

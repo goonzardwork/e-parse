@@ -1,8 +1,11 @@
 ## How to run
 
 ```bash
+# (Optional) Enable python
+source ./server/.venv/bin/activate
+
 # From root
-uvicorn server.main:app \
+PYTHONPATH=./server uvicorn main:app \
   --host 0.0.0.0 \
   --port 51000 \
   --ssl-keyfile=server/.certs/localhost-key.pem \
