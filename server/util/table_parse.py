@@ -17,7 +17,7 @@ def excel_serial_to_datetime(series: pd.Series) -> pd.Series:
     return pd.to_datetime(numeric, unit="D", origin="1899-12-30", errors="coerce")
 
 
-def office_parse_1(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
+def office_parse_5size(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
     if dm is None:
         raise RuntimeError("no parsing function for `df`")
 
@@ -75,7 +75,7 @@ def office_parse_1(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
     return my_df
 
 
-def office_parse_2(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
+def office_parse_3size(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
     if dm is None:
         raise RuntimeError("no parsing function for `df`")
 
@@ -133,36 +133,8 @@ def office_parse_2(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
     return my_df
 
 
-def office_table_3(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
-    if dm is None:
-        raise RuntimeError("no parsing function for `df`")
-
-    df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
-    df.replace({".": None, "-": None}, inplace=True)
-
-    # 1. Target column names
-    columns = list(dm.__annotations__.keys())
-    df.columns = columns
-
-    # 2. Coerce column types using inner_type
-    type_map = {}
-    for col, col_type in dm.__annotations__.items():
-        if get_origin(col_type) is Series:
-            inner_type = get_args(col_type)[0]
-            type_map[col] = inner_type
-
-    # 3. Apply type coercion
-    for col, dtype in type_map.items():
-        if dtype in [datetime, pd.Timestamp]:
-            df[col] = excel_serial_to_datetime(df[col])
-        elif dtype == int:
-            df[col] = pd.to_numeric(df[col], errors="coerce").astype(pd.Int64Dtype())
-        else:
-            df[col] = df[col].astype(dtype)
-    return df
-
-
-def office_table_4(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
+def office_table_yearffill(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
+    # Year Ffill
     if dm is None:
         raise RuntimeError("no parsing function for `df`")
     
@@ -193,7 +165,39 @@ def office_table_4(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
     return df
 
 
-def office_table_5(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
+def office_table_drop_col(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
+    # Rsquare (망할것들). 연도가 Merge 셀이라 두칸으로 들어옴. 한칸 줄이기
+    if dm is None:
+        raise RuntimeError("no parsing function for `df`")
+    
+    df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
+    df.replace({".": None, "-": None, "": None}, inplace=True)
+    df = df.drop(df.columns[1], axis=1)  # Drop 2nd column
+
+    # 1. Target column names
+    columns = list(dm.__annotations__.keys())
+    df.columns = columns
+
+    # 2. Coerce column types using inner_type
+    type_map = {}
+    for col, col_type in dm.__annotations__.items():
+        if get_origin(col_type) is Series:
+            inner_type = get_args(col_type)[0]
+            type_map[col] = inner_type
+
+    # 3. Apply type coercion
+    for col, dtype in type_map.items():
+        if dtype in [datetime, pd.Timestamp]:
+            df[col] = excel_serial_to_datetime(df[col])
+        elif dtype == int:
+            df[col] = pd.to_numeric(df[col], errors="coerce").astype(pd.Int64Dtype())
+        else:
+            df[col] = df[col].astype(dtype)
+
+    return df
+
+
+def office_table_universal(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
     # Used for universal purpose - no column operation needed
     if dm is None:
         raise RuntimeError("no parsing function for `df`")
@@ -224,7 +228,7 @@ def office_table_5(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
     return df
 
 
-def office_table_6(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
+def office_table_rent(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
     if dm is None:
         raise RuntimeError("no parsing function for `df`")
     
@@ -255,7 +259,6 @@ def office_table_6(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
         seg['quarter'] = f"{q}Q"
 
         segs.append(pd.concat([common_df, seg], axis=1))
-        print(y, q)
 
         # Update quarter and year
         q += 1
