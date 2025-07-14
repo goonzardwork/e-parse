@@ -1,4 +1,5 @@
 import pandera.pandas as pa
+import pandas as pd
 from pandera.typing import Series
 from datetime import datetime
 
@@ -314,7 +315,7 @@ class OfficeTable9(pa.DataFrameModel):
     stabilized_real_cap: Series[float]
     asis_nominal_cap: Series[float]
     asis_real_cap: Series[float]
-    im_cap: Series[float]
+    im_cap: Series[str]
     cap_note: Series[str]
 
 
@@ -365,11 +366,11 @@ class OfficeTable10_3(pa.DataFrameModel):
 
 class OfficeTable11(pa.DataFrameModel):
     # 오피스 임대_Raw data
-    no: Series[float]
+    row_id: Series[int]
     build_name: Series[str]
     build_name_specify: Series[str]
     code: Series[str]
-    code_specify: Series[str]
+    code_specify: Series[str]  # PK
     pnu: Series[str]
     bjd_code: Series[str]
     land_code: Series[str]

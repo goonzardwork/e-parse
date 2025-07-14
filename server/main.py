@@ -26,7 +26,7 @@ FILENAME_MAP: Dict[
     ]
 ] = {
     # 시트: 임대시장통계(5구분)
-    "오피스_0.csv": (office_obj.OfficeTable1, office_fn.office_parse_1),
+    # "오피스_0.csv": (office_obj.OfficeTable1, office_fn.office_parse_1),
     
     # 시트: 임대시장통계(3구분)
     "오피스_1.csv": (office_obj.OfficeTable2, office_fn.office_parse_2),
@@ -79,7 +79,7 @@ FILENAME_MAP: Dict[
     "오피스_25.csv": (office_obj.OfficeTable10_3, office_fn.office_table_4),
 
     # 시트: 오피스 임대_Raw data
-    "오피스_26.csv": (office_obj.OfficeTable11, office_fn.office_table_6),
+    "오피스_0.csv": (office_obj.OfficeTable11, office_fn.office_table_6),
 }
 
 @app.post("/upload_csv/")

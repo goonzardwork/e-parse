@@ -2,13 +2,27 @@ import pandas as pd
 import pandera.pandas as pa
 from pandera.typing import Series
 from typing import get_args, get_origin
+from datetime import datetime
+
+
+def excel_serial_to_datetime(series: pd.Series) -> pd.Series:
+    """
+    Convert a Series of Excel serial dates (with possible missing or dirty values)
+    to pandas datetime, allowing for NaNs and coercing errors.
+    """
+    # Step 1: Coerce to numeric (turns ".", "-", "", "NaN" into np.nan)
+    numeric = pd.to_numeric(series, errors="coerce")
+
+    # Step 2: Convert to datetime (NaNs remain as NaT)
+    return pd.to_datetime(numeric, unit="D", origin="1899-12-30", errors="coerce")
 
 
 def office_parse_1(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
     if dm is None:
         raise RuntimeError("no parsing function for `df`")
 
-    df.replace({".": None, "-": None}, inplace=True)
+    df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
+    df.replace({".": None, "-": None, "": None}, inplace=True)
 
     # 1. Target column names
     columns = list(dm.__annotations__.keys())
@@ -50,7 +64,13 @@ def office_parse_1(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
             type_map[col] = inner_type
 
     # 3. Apply type coercion
-    my_df = my_df.astype(type_map)
+    for col, dtype in type_map.items():
+        if dtype in [datetime, pd.Timestamp]:
+            my_df[col] = excel_serial_to_datetime(my_df[col])
+        elif dtype == int:
+            my_df[col] = pd.to_numeric(my_df[col], errors="coerce").astype(pd.Int64Dtype())
+        else:
+            my_df[col] = my_df[col].astype(dtype)
 
     return my_df
 
@@ -59,7 +79,8 @@ def office_parse_2(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
     if dm is None:
         raise RuntimeError("no parsing function for `df`")
 
-    df.replace({".": None, "-": None}, inplace=True)
+    df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
+    df.replace({".": None, "-": None, "": None}, inplace=True)
 
     # 1. Target column names
     columns = list(dm.__annotations__.keys())
@@ -101,7 +122,13 @@ def office_parse_2(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
             type_map[col] = inner_type
 
     # 3. Apply type coercion
-    my_df = my_df.astype(type_map)
+    for col, dtype in type_map.items():
+        if dtype in [datetime, pd.Timestamp]:
+            my_df[col] = excel_serial_to_datetime(my_df[col])
+        elif dtype == int:
+            my_df[col] = pd.to_numeric(my_df[col], errors="coerce").astype(pd.Int64Dtype())
+        else:
+            my_df[col] = my_df[col].astype(dtype)
 
     return my_df
 
@@ -110,6 +137,7 @@ def office_table_3(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
     if dm is None:
         raise RuntimeError("no parsing function for `df`")
 
+    df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
     df.replace({".": None, "-": None}, inplace=True)
 
     # 1. Target column names
@@ -124,7 +152,13 @@ def office_table_3(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
             type_map[col] = inner_type
 
     # 3. Apply type coercion
-    df = df.astype(type_map)
+    for col, dtype in type_map.items():
+        if dtype in [datetime, pd.Timestamp]:
+            df[col] = excel_serial_to_datetime(df[col])
+        elif dtype == int:
+            df[col] = pd.to_numeric(df[col], errors="coerce").astype(pd.Int64Dtype())
+        else:
+            df[col] = df[col].astype(dtype)
     return df
 
 
@@ -132,7 +166,8 @@ def office_table_4(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
     if dm is None:
         raise RuntimeError("no parsing function for `df`")
     
-    df.replace({".": None, "-": None}, inplace=True)
+    df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
+    df.replace({".": None, "-": None, "": None}, inplace=True)
 
     # 1. Target column names
     columns = list(dm.__annotations__.keys())
@@ -147,15 +182,24 @@ def office_table_4(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
             type_map[col] = inner_type
 
     # 3. Apply type coercion
-    df = df.astype(type_map)
+    for col, dtype in type_map.items():
+        if dtype in [datetime, pd.Timestamp]:
+            df[col] = excel_serial_to_datetime(df[col])
+        elif dtype == int:
+            df[col] = pd.to_numeric(df[col], errors="coerce").astype(pd.Int64Dtype())
+        else:
+            df[col] = df[col].astype(dtype)
+
     return df
 
 
 def office_table_5(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
+    # Used for universal purpose - no column operation needed
     if dm is None:
         raise RuntimeError("no parsing function for `df`")
     
-    df.replace({".": None, "-": None}, inplace=True)
+    df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
+    df.replace({".": None, "-": None, "": None}, inplace=True)
 
     # 1. Target column names
     columns = list(dm.__annotations__.keys())
@@ -169,7 +213,14 @@ def office_table_5(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
             type_map[col] = inner_type
 
     # 3. Apply type coercion
-    df = df.astype(type_map)
+    for col, dtype in type_map.items():
+        if dtype in [datetime, pd.Timestamp]:
+            df[col] = excel_serial_to_datetime(df[col])
+        elif dtype == int:
+            df[col] = pd.to_numeric(df[col], errors="coerce").astype(pd.Int64Dtype())
+        else:
+            df[col] = df[col].astype(dtype)
+
     return df
 
 
@@ -177,7 +228,8 @@ def office_table_6(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
     if dm is None:
         raise RuntimeError("no parsing function for `df`")
     
-    df.replace({".": None, "-": None}, inplace=True)
+    df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
+    df.replace({".": None, "-": None, "": None}, inplace=True)
 
     # Common section
     common_section = 20
@@ -189,7 +241,10 @@ def office_table_6(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
     # Repeated section
     y, q = 2022, 4
     repeatc = ["deposit", "rent", "utility", "rent_free", "vacant_area", "vacancy", "noc"]
-    yq_count = (df.columns - 20 - 1) / 7  # 20개의 고정된 Column. 1개의 비고 Column
+    yq_count = (len(df.columns) - 20 - 1) // 7  # 20개의 고정된 Column. 1개의 비고 Column
+    yq_count_check = (len(df.columns) - 20 - 1) % 7 == 0
+    if not yq_count_check:
+        raise ValueError(f"Wrong column count; (Total {len(df.columns)} - 20 - 1) % 7")
 
     col_ptr = 20
     segs = list()
@@ -199,15 +254,16 @@ def office_table_6(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
         seg['year'] = y
         seg['quarter'] = f"{q}Q"
 
+        segs.append(pd.concat([common_df, seg], axis=1))
+        print(y, q)
+
         # Update quarter and year
         q += 1
         if q > 4:
             q = 1
             y += 1
         
-        segs.append(pd.concat([common_df, seg], axis=1))
-
-    my_df = pd.concat(segs)
+    my_df = pd.concat(segs).reset_index(drop=True)
 
     type_map = {}
     for col, col_type in dm.__annotations__.items():
@@ -216,6 +272,12 @@ def office_table_6(df: pd.DataFrame, dm: pa.DataFrameModel) -> pd.DataFrame:
             type_map[col] = inner_type
 
     # 3. Apply type coercion
-    my_df = my_df.astype(type_map)
+    for col, dtype in type_map.items():
+        if dtype in [datetime, pd.Timestamp]:
+            my_df[col] = excel_serial_to_datetime(my_df[col])
+        elif dtype == int:
+            my_df[col] = pd.to_numeric(my_df[col], errors="coerce").astype(pd.Int64Dtype())
+        else:
+            my_df[col] = my_df[col].astype(dtype)
         
     return my_df        
