@@ -1,3 +1,7 @@
+## Checklist
+
+1. localhost pem key is generted inside `./server/.certs`
+
 ## How to run
 
 ```bash

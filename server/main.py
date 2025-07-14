@@ -5,6 +5,7 @@ import pandera as pa
 import util.table_meta_office as office_obj
 import util.table_parse as office_fn
 from typing import Dict, Tuple, Callable
+from pathlib import Path
 import io
 
 app = FastAPI()
@@ -98,9 +99,8 @@ async def upload_csv(file: UploadFile = File(...)):
     except Exception as e:
         return {"status": f"not saved: {e}", "filename": None}
 
-    print(result.head(5))
-    # path = Path("saved") / filename
-    # path.parent.mkdir(exist_ok=True)
-    # df.to_csv(path, index=False)
+    path = Path("saved") / filename
+    path.parent.mkdir(exist_ok=True)
+    result.to_csv(path, index=False)
 
     return {"status": "saved", "filename": filename}
